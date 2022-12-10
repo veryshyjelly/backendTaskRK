@@ -9,7 +9,7 @@ type Student struct {
 	Email        *string   `json:"email" validate:"email,required"`
 	Password     *string   `json:"password" validate:"min=6,required"`
 	Contact      *string   `json:"contact"`
-	BlockNumber  *string   `json:"block_number"`
+	BlockNo      *string   `json:"block_no"`
 	RoomNo       *string   `json:"room_no"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`

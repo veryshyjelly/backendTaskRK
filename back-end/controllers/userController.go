@@ -16,6 +16,12 @@ func GetStudent() fiber.Handler {
 		// Check if the user is authorized
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 		defer cancel()
+		// Check if the same student is asking for the data
+		if c.Locals("roll_no") != rollNo {
+			c.Status(fiber.StatusUnauthorized)
+			c.JSON(fiber.Map{"message": "unauthorized"})
+			return
+		}
 		// Get the user from the database
 		var user models.Student
 		database.DB.WithContext(ctx).Model(&models.Student{}).First(&user, "roll_no = ?", rollNo)
@@ -33,6 +39,13 @@ func GetStudent() fiber.Handler {
 	}
 }
 
+type student struct {
+	Name    *string `json:"name"`
+	RollNo  *string `json:"roll_no"`
+	BlockNo *string `json:"block_no"`
+	RoomNo  *string `json:"room_no"`
+}
+
 func GetAllStudents() fiber.Handler {
 	return func(c *fiber.Ctx) (err error) {
 		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
@@ -47,14 +60,58 @@ func GetAllStudents() fiber.Handler {
 			return
 		}
 
+		var studentsList []student = make([]student, len(students))
+		for i, stud := range students {
+			studentsList[i] = student{
+				Name:    stud.Name,
+				RollNo:  stud.RollNo,
+				BlockNo: stud.BlockNo,
+				RoomNo:  stud.RoomNo,
+			}
+		}
+
 		c.Status(fiber.StatusOK)
-		c.JSON(fiber.Map{"message": "success", "data": students})
+		c.JSON(fiber.Map{"message": "success", "data": studentsList})
 		return
 	}
 }
 
 func UpdateStudent() fiber.Handler {
 	return func(c *fiber.Ctx) (err error) {
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+
+		userType := c.Locals("user_type")
+		if userType == "student" {
+			var student models.Student
+			if err = c.BodyParser(&student); err != nil {
+				c.Status(fiber.StatusBadRequest)
+				c.JSON(fiber.Map{"message": "invalid request"})
+				return
+			}
+			var foundStudent models.Student
+			database.DB.WithContext(ctx).Model(&models.Student{}).First(&foundStudent, "roll_no = ?", student.RollNo)
+			foundStudent.Contact = student.Contact
+
+			database.DB.WithContext(ctx).Model(&models.Student{}).Where("roll_no = ?", student.RollNo).Updates(foundStudent)
+
+			c.Status(fiber.StatusOK)
+			c.JSON(fiber.Map{"message": "success", "data": foundStudent})
+		} else if userType == "admin" {
+			var student models.Student
+			if err = c.BodyParser(&student); err != nil {
+				c.Status(fiber.StatusBadRequest)
+				c.JSON(fiber.Map{"message": "invalid request"})
+				return
+			}
+			database.DB.WithContext(ctx).Model(&models.Student{}).Where("roll_no = ?", student.RollNo).Updates(student)
+
+			c.Status(fiber.StatusOK)
+			c.JSON(fiber.Map{"message": "success", "data": student})
+		} else {
+			c.Status(fiber.StatusUnauthorized)
+			c.JSON(fiber.Map{"message": "unauthorized"})
+		}
 		return
 	}
 }
