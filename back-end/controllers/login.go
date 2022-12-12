@@ -26,12 +26,6 @@ func Login(givenUserType string) fiber.Handler {
 				c.JSON(fiber.Map{"message": err.Error()})
 				return
 			}
-			// Validate the body of the request
-			if validationErr := validate.Struct(user); validationErr != nil {
-				c.Status(fiber.StatusBadRequest)
-				c.JSON(fiber.Map{"message": validationErr.Error()})
-				return
-			}
 			// Check if the user exists in the database
 			database.DB.WithContext(ctx).First(&foundUser, "faculty_id = ?", user.FacultyId)
 			if foundUser.FacultyId == nil { // If user doesn't exist
@@ -47,7 +41,7 @@ func Login(givenUserType string) fiber.Handler {
 				return err
 			}
 			// Generate tokens
-			token, refreshToken, err := helpers.GenerateAllTokens(*foundUser.Email, "admin", *foundUser.Name, *foundUser.FacultyId)
+			token, refreshToken, err := helpers.GenerateAllTokens(*foundUser.Name, *foundUser.Email, "admin", *foundUser.FacultyId)
 			if err != nil { // If error in generating tokens
 				c.Status(fiber.StatusInternalServerError)
 				c.JSON(fiber.Map{"message": err.Error()})
@@ -85,7 +79,7 @@ func Login(givenUserType string) fiber.Handler {
 				return err
 			}
 			// Generate tokens
-			token, refreshToken, err := helpers.GenerateAllTokens(*foundUser.Email, "student", *foundUser.Name, *foundUser.RollNo)
+			token, refreshToken, err := helpers.GenerateAllTokens(*foundUser.Name, *foundUser.Email, "student", *foundUser.RollNo)
 			if err != nil {
 				c.Status(fiber.StatusInternalServerError)
 				c.JSON(fiber.Map{"message": err.Error()})

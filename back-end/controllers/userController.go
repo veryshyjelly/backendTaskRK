@@ -44,6 +44,8 @@ type student struct {
 	RollNo  *string `json:"roll_no"`
 	BlockNo *string `json:"block_no"`
 	RoomNo  *string `json:"room_no"`
+	Contact *string `json:"contact"`
+	Email   *string `json:"email"`
 }
 
 func GetAllStudents() fiber.Handler {
@@ -67,6 +69,8 @@ func GetAllStudents() fiber.Handler {
 				RollNo:  stud.RollNo,
 				BlockNo: stud.BlockNo,
 				RoomNo:  stud.RoomNo,
+				Contact: stud.Contact,
+				Email:   stud.Email,
 			}
 		}
 

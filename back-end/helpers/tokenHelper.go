@@ -22,7 +22,7 @@ type SignedDetails struct {
 
 var SECRET_KEY string = os.Getenv("SECRET_KEY")
 
-func GenerateAllTokens(email string, userType string, name string, userId string) (signedToken string, signedRefreshToken string, err error) {
+func GenerateAllTokens(name string, email string, userType string, userId string) (signedToken string, signedRefreshToken string, err error) {
 	claims := &SignedDetails{
 		Email:    email,
 		UserType: userType,
@@ -76,7 +76,7 @@ func ValidateToken(signedToken string) (claims *SignedDetails, err error) {
 		return []byte(SECRET_KEY), nil
 	})
 	if err != nil {
-		err = errors.New("parse error")
+		err = errors.New("invalid token")
 		return
 	}
 

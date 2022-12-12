@@ -66,7 +66,7 @@ func SignUp(givenUserType string) fiber.Handler {
 			user.CreatedAt = time.Now().Local()
 			user.Password = &password
 			// Generate the tokens
-			token, refreshToken, err := helpers.GenerateAllTokens(*user.Email, *user.Name, "admin", *user.FacultyId)
+			token, refreshToken, err := helpers.GenerateAllTokens(*user.Name, *user.Email, "admin", *user.FacultyId)
 			if err != nil {
 				c.Status(fiber.StatusInternalServerError)
 				c.JSON(fiber.Map{"message": err.Error()})
@@ -110,7 +110,7 @@ func SignUp(givenUserType string) fiber.Handler {
 			user.CreatedAt = time.Now().Local()
 			user.Password = &password
 			// Generate the tokens
-			token, refreshToken, err := helpers.GenerateAllTokens(*user.Email, *user.Name, "student", *user.RollNo)
+			token, refreshToken, err := helpers.GenerateAllTokens(*user.Name, *user.Email, "student", *user.RollNo)
 			if err != nil {
 				c.Status(fiber.StatusInternalServerError)
 				c.JSON(fiber.Map{"message": err.Error()})

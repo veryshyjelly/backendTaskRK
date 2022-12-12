@@ -9,7 +9,7 @@ type Admin struct {
 	FacultyId    *string   `json:"faculty_id" validate:"required"`
 	Contact      *string   `json:"contact"`
 	Position     *string   `json:"position" validate:"required"`
-	Password     *string   `json:"password" validate:"min=6"`
+	Password     *string   `json:"password" validate:"required,min=6"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 	Token        *string   `json:"token"`
